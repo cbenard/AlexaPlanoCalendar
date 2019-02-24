@@ -84,28 +84,7 @@ namespace AlexaFunctions
 
                 if (nextEvent != null)
                 {
-                    string ssml = $"<s>The next event in the {calendar.Name} calendar is titled: \"{nextEvent.Name}\".</s>"
-                        + $"<s>It starts at <say-as interpret-as=\"time\">{nextEvent.Start.ToString("HH:mm")}</say-as> ";
-                    if (DateTimeService.NowCentral.Date == nextEvent.Start.Date)
-                    {
-                        ssml += "<emphasis level=\"strong\">today</emphasis>";
-                    }
-                    else if (DateTimeService.NowCentral.Date.AddDays(1) == nextEvent.Start.Date)
-                    {
-                        ssml += "tomorrow";
-                    }
-                    else
-                    {
-                        ssml += $"on <say-as interpret-as=\"date\" format=\"md\">{nextEvent.Start.Date.ToString("MMdd")}</say-as>";
-                    }
-                    ssml += ".</s>";
-
-                    ssml += $"<s>It lasts until <say-as interpret-as=\"time\">{nextEvent.End.ToString("HH:mm")}</say-as>.</s>";
-
-                    if (!String.IsNullOrWhiteSpace(nextEvent.Description))
-                    {
-                        ssml += $"<s>Here's the description.</s><s>{nextEvent.Description}</s>";
-                    }
+                    string ssml = CreateSsmlForEvent(calendar, nextEvent);
 
                     return ResponseBuilder.Tell(new SsmlOutputSpeech
                     {
@@ -126,6 +105,42 @@ namespace AlexaFunctions
             {
                 Text = message
             });
+        }
+
+        private string CreateSsmlForEvent(Calendar calendar, CalendarEntry nextEvent)
+        {
+            string ssml = $"<s>The next event in the {calendar.Name} calendar is titled: \"{nextEvent.Name}\".</s>"
+                + $"<s>It starts at <say-as interpret-as=\"time\">{nextEvent.Start.ToString("HH:mm")}</say-as> ";
+
+            ssml += CreateSsmlForStartDate(nextEvent, ssml);
+            ssml += $"<s>It lasts until <say-as interpret-as=\"time\">{nextEvent.End.ToString("HH:mm")}</say-as>.</s>";
+
+            if (!String.IsNullOrWhiteSpace(nextEvent.Description))
+            {
+                ssml += $"<s>Here's the description.</s><s>{nextEvent.Description}</s>";
+            }
+
+            return ssml;
+        }
+
+        private string CreateSsmlForStartDate(CalendarEntry nextEvent, string ssml)
+        {
+            if (DateTimeService.NowCentral.Date == nextEvent.Start.Date)
+            {
+                ssml += "<emphasis level=\"strong\">today</emphasis>";
+            }
+            else if (DateTimeService.NowCentral.Date.AddDays(1) == nextEvent.Start.Date)
+            {
+                ssml += "tomorrow";
+            }
+            else
+            {
+                ssml += $"on <say-as interpret-as=\"date\" format=\"md\">{nextEvent.Start.Date.ToString("MMdd")}</say-as>";
+            }
+
+            ssml += ".</s>";
+
+            return ssml;
         }
     }
 }
