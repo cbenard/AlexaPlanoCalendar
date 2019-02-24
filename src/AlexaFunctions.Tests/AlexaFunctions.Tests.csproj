@@ -14,6 +14,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Samples\" />
+    <Folder Include="Helpers\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Samples\CityCouncilMeetings.xml">

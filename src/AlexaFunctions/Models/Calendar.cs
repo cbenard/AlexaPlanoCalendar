@@ -6,6 +6,6 @@ namespace AlexaFunctions.Models
     public class Calendar
     {
         public string Name { get; set; }
-        public List<CalendarEntry> Entries { get; set; }
+        public CalendarEntry[] Entries { get; set; }
     }
 }
