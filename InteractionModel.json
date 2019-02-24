@@ -1,0 +1,55 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "plano calendar",
+            "intents": [
+                {
+                    "name": "AMAZON.FallbackIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "next_event",
+                    "slots": [
+                        {
+                            "name": "calendar_name",
+                            "type": "calendar_name"
+                        }
+                    ],
+                    "samples": [
+                        "what time is {calendar_name}",
+                        "when's the next {calendar_name}",
+                        "when is the next {calendar_name}"
+                    ]
+                }
+            ],
+            "types": [
+                {
+                    "name": "calendar_name",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "Meetings"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

@@ -1,0 +1,3 @@
+next_event what time is {calendar_name}
+next_event when's the next {calendar_name}
+next_event when is the next {calendar_name}
