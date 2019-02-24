@@ -140,22 +140,13 @@ namespace AlexaFunctions
         {
             string ssml = "<speak>"; 
 
-            ssml += $"<s>The next event in the {EscapeSsmlSpeech(calendar.Name)} calendar is titled: \"{EscapeSsmlSpeech(nextEvent.Name)}\".</s>";
-            ssml += $"<s>It starts at <say-as interpret-as=\"time\">{nextEvent.Start.ToString("hh:mm tt")}</say-as> ";
-
-            ssml += CreateSsmlForStartDate(nextEvent);
-            string nextEventEndString = nextEvent.End.ToString("hh:mm tt");
-
-            if (nextEventEndString == "11:59 PM" || nextEventEndString == "12:00 AM")
-            {
-                nextEventEndString = "midnight";
-            }
-
-            ssml += $"<s>It lasts until <say-as interpret-as=\"time\">{nextEventEndString}</say-as>.</s>";
+            ssml += $"<s>The next event in the {EscapeSsmlSpeech(calendar.Name)} calendar is titled: \"{EscapeSsmlSpeech(nextEvent.Name)}\".</s> ";
+            ssml += $"<s>It starts at {CreateSsmlForTime(nextEvent.Start)} {CreateSsmlForDate(nextEvent.Start)}.</s> ";
+            ssml += $"<s>It lasts until {CreateSsmlForTime(nextEvent.End)}.</s> ";
 
             if (!String.IsNullOrWhiteSpace(nextEvent.Description))
             {
-                ssml += $"<s>Here's the description.</s><s>{EscapeSsmlSpeech(nextEvent.Description)}</s>";
+                ssml += $"<s>Here's the description:</s> <s>{EscapeSsmlSpeech(nextEvent.Description)}</s>";
             }
 
             ssml += "</speak>";
@@ -163,24 +154,40 @@ namespace AlexaFunctions
             return ssml;
         }
 
-        private string CreateSsmlForStartDate(CalendarEntry nextEvent)
+        private string CreateSsmlForTime(DateTime time)
         {
-            string ssml = String.Empty;
+            string timeString = time.ToString("hh:mm tt");
 
-            if (DateTimeService.NowCentral.Date == nextEvent.Start.Date)
+            if (timeString == "11:59 PM" || timeString == "12:00 AM")
             {
-                ssml += "<emphasis level=\"strong\">today</emphasis>";
+                timeString = "midnight";
             }
-            else if (DateTimeService.NowCentral.Date.AddDays(1) == nextEvent.Start.Date)
+            else if (timeString == "12:00 PM")
             {
-                ssml += "tomorrow";
+                timeString = "noon";
+            }
+
+            timeString = $"<say-as interpret-as=\"time\">{timeString}</say-as>";
+
+            return timeString;
+        }
+
+        private string CreateSsmlForDate(DateTime date)
+        {
+            string ssml;
+
+            if (DateTimeService.NowCentral.Date == date.Date)
+            {
+                ssml = "<emphasis level=\"strong\">today</emphasis>";
+            }
+            else if (DateTimeService.NowCentral.Date.AddDays(1) == date.Date)
+            {
+                ssml = "tomorrow";
             }
             else
             {
-                ssml += $"on <say-as interpret-as=\"date\" format=\"md\">{nextEvent.Start.Date.ToString("MMdd")}</say-as>";
+                ssml = $"on <say-as interpret-as=\"date\" format=\"md\">{date.Date.ToString("MMdd")}</say-as>";
             }
-
-            ssml += ".</s>";
 
             return ssml;
         }
