@@ -17,14 +17,16 @@ namespace AlexaFunctions.Services
         private readonly Regex _descriptionRegex = new Regex(@"Description:\s*(?<Description>\S.*)");
 
         public IHttpService HttpService { get; }
+        public IDateTimeService DateTimeService { get; }
 
-        public CalendarService(IHttpService httpService)
+        public CalendarService(IHttpService httpService, IDateTimeService dateTimeService)
         {
             HttpService = httpService;
+            DateTimeService = dateTimeService;
         }
 
         // Poor man's dependency injection
-        public CalendarService() : this(new HttpService())
+        public CalendarService() : this(new HttpService(), new DateTimeService())
         {
         }
 
@@ -40,6 +42,15 @@ namespace AlexaFunctions.Services
             Calendar calendar = ParseContents(contents);
 
             return calendar;
+        }
+
+        public IEnumerable<CalendarEntry> GetFutureCalendarEntries(Calendar calendar)
+        {
+            var entries = calendar?.Entries?
+                .Where(x => x.Start > DateTimeService.NowCentral)?
+                .OrderBy(x => x.Start);
+
+            return entries;
         }
 
         private string GetUrl(CalendarType calendarType)
@@ -82,7 +93,7 @@ namespace AlexaFunctions.Services
                         {
                             Name = itemTitle,
                             Start = start.Value,
-                            End = end,
+                            End = end.Value,
                             Location = location,
                             Description = description,
                             Link = link

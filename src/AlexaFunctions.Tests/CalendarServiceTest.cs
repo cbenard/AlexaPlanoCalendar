@@ -17,11 +17,12 @@ namespace AlexaFunctions.Tests
     public class CalendarServiceTest
     {
         private const string EXAMPLE_FILE = "CityCouncilMeetings.xml";
+        private readonly DateTime EXAMPLE_DATETIME = new DateTime(2019, 2, 25, 19, 0, 0);
 
         [Fact]
         public async Task Parses_Calendar()
         {
-            var service = new CalendarService(new DummyHttpService(EXAMPLE_FILE));
+            CalendarService service = CreateService();
 
             Calendar calendar = await service.GetCalendar(CalendarType.Meetings);
 
@@ -38,9 +39,24 @@ namespace AlexaFunctions.Tests
         }
 
         [Fact]
+        public async Task Parses_Future_Calendar_Entries()
+        {
+            CalendarService service = CreateService();
+
+            Calendar calendar = await service.GetCalendar(CalendarType.Meetings);
+            var entries = service.GetFutureCalendarEntries(calendar);
+
+            Assert.NotNull(entries);
+            Assert.Equal(4, entries.Count());
+            Assert.Equal("Heritage Commission Meeting", entries.First().Name);
+            Assert.Equal(new DateTime(2019, 2, 26, 18, 0, 0), entries.First().Start);
+            Assert.Equal(new DateTime(2019, 2, 26, 23, 59, 0), entries.First().End);
+        }
+
+        [Fact]
         public void Parses_Calendar_Name()
         {
-            var service = new CalendarService(new DummyHttpService(EXAMPLE_FILE));
+            CalendarService service = CreateService();
             string input = "Plano, TX - Calendar - City Council & Commissions Meetings";
 
             string output = service.ParseCalendarName(input);
@@ -51,7 +67,7 @@ namespace AlexaFunctions.Tests
         [Fact]
         public void Parses_Event_Name()
         {
-            var service = new CalendarService(new DummyHttpService(EXAMPLE_FILE));
+            CalendarService service = CreateService();
             string input = "Board of Adjustment";
 
             string output = service.ParseEventName(input);
@@ -62,7 +78,7 @@ namespace AlexaFunctions.Tests
         [Fact]
         public void Parses_Event_Name_Cancellation()
         {
-            var service = new CalendarService(new DummyHttpService(EXAMPLE_FILE));
+            CalendarService service = CreateService();
             string input = "Board of Adjustment - Cancellation";
 
             string output = service.ParseEventName(input);
@@ -73,7 +89,7 @@ namespace AlexaFunctions.Tests
         [Fact]
         public void Parses_Two_Times()
         {
-            var service = new CalendarService(new DummyHttpService(EXAMPLE_FILE));
+            CalendarService service = CreateService();
             string dateText = "January 1, 2019";
             string timeText = "06:00 AM - 08:00 PM";
 
@@ -86,7 +102,7 @@ namespace AlexaFunctions.Tests
         [Fact]
         public void Parses_Link()
         {
-            var service = new CalendarService(new DummyHttpService(EXAMPLE_FILE));
+            CalendarService service = CreateService();
             string input = "http://www.plano.gov/Calendar.aspx?EID=22172";
 
             Uri output = service.ParseLink(input);
@@ -100,7 +116,7 @@ namespace AlexaFunctions.Tests
         [Fact]
         public void Parses_Description()
         {
-            var service = new CalendarService(new DummyHttpService(EXAMPLE_FILE));
+            CalendarService service = CreateService(); 
             string input = "<strong>Event date:</strong> February 26, 2019 <br><strong>Event Time: </strong>06:30 PM - 11:59 PM<br><strong>Location:</strong> <br>Plano Housing Authority Administration Building<br>1740 Avenue G<br>Plano, TX 75074";
 
             string output = service.ParseDescription(input);
@@ -111,12 +127,18 @@ namespace AlexaFunctions.Tests
         [Fact]
         public void Doesnt_Parse_Empty_Description()
         {
-            var service = new CalendarService(new DummyHttpService(EXAMPLE_FILE));
+            CalendarService service = CreateService();
             string input = "<strong>Event date:</strong> February 26, 2019 <br><strong>Event Time: </strong>09:30 AM - 10:00 AM<br><strong>Location:</strong> <br>2501 Coit Road<br>Plano, TX 75075<br><strong>Description:</strong><br>Songs, nursery rhymes and books provide a language-rich experience for the youngest child. Active parent/caregiver participation is a must! Ages 0-24 months";
 
             string output = service.ParseDescription(input);
 
             Assert.Equal("Songs, nursery rhymes and books provide a language-rich experience for the youngest child. Active parent/caregiver participation is a must! Ages 0-24 months", output);
+        }
+
+        private CalendarService CreateService()
+        {
+            var service = new CalendarService(new DummyHttpService(EXAMPLE_FILE), new DummyDateTimeService(EXAMPLE_DATETIME));
+            return service;
         }
     }
 }
