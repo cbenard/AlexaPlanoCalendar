@@ -43,12 +43,14 @@ namespace AlexaFunctions
                     return HandleLaunchRequest(launchRequest, logger);
                 case IntentRequest intentRequest:
                     return HandleIntentRequest(intentRequest, logger);
+                case SessionEndedRequest sessionEndedRequest:
+                    return HandleSessionEndedRequest(sessionEndedRequest, logger);
                 default:
                     throw new NotImplementedException($"Non-implemented request type: {input.Request.GetType().Name}");
             }
         }
 
-        private SkillResponse HandleLaunchRequest(LaunchRequest launchRequest, ILambdaLogger logger)
+        private SkillResponse HandleLaunchRequest(Request launchRequest, ILambdaLogger logger)
         {
             var response = ResponseBuilder.Tell(new PlainTextOutputSpeech
             {
@@ -66,8 +68,25 @@ namespace AlexaFunctions
             {
                 return HandleNextEventRequest(intentRequest, logger);
             }
+            else if (intentRequest.Intent.Name == "AMAZON.HelpIntent"
+                || intentRequest.Intent.Name == "AMAZON.NavigateHomeIntent")
+            {
+                return HandleLaunchRequest(intentRequest, logger);
+            }
 
             throw new NotImplementedException($"Non-implemented intent request type: {intentRequest.Intent.Name}");
+        }
+
+        private SkillResponse HandleSessionEndedRequest(Request sessionEndedRequest, ILambdaLogger logger)
+        {
+            var response = ResponseBuilder.Tell(new PlainTextOutputSpeech
+            {
+                Text = "Goodbye.",
+            });
+
+            response.Response.ShouldEndSession = true;
+
+            return response;
         }
 
         private SkillResponse HandleNextEventRequest(IntentRequest intentRequest, ILambdaLogger logger)
@@ -105,10 +124,14 @@ namespace AlexaFunctions
                 message = "I'm sorry. I wasn't able to understand that calendar name.";
             }
 
-            return ResponseBuilder.Tell(new PlainTextOutputSpeech
+            var response = ResponseBuilder.Tell(new PlainTextOutputSpeech
             {
                 Text = message
             });
+
+            response.Response.ShouldEndSession = true;
+
+            return response;
         }
 
         private bool TryParseCalendarName(Slot calendarNameSlot, out CalendarType? calendarType, ILambdaLogger logger)
