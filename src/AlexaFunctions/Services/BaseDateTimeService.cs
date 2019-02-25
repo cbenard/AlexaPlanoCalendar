@@ -8,6 +8,7 @@ namespace AlexaFunctions.Services
     {
         private const string CENTRAL_TIMEZONE_WINDOWS = "Central Standard Time";
         private const string CENTRAL_TIMEZONE_UNIX = "America/Chicago";
+
         // Workaround from https://stackoverflow.com/a/51315221/448 for cross platform
         private readonly TimeZoneInfo _centralTimeZone =
             TimeZoneInfo.GetSystemTimeZones().Any(x => x.Id == CENTRAL_TIMEZONE_WINDOWS) ?
