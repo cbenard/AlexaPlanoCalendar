@@ -201,7 +201,7 @@ namespace AlexaFunctions
 
             if (DateTimeService.NowCentral.Date == date.Date)
             {
-                ssml = "<emphasis level=\"strong\">today</emphasis>";
+                ssml = "today";
             }
             else if (DateTimeService.NowCentral.Date.AddDays(1) == date.Date)
             {
@@ -218,8 +218,6 @@ namespace AlexaFunctions
         internal string EscapeSsmlSpeech(string input)
         {
             string escaped = input;
-
-            escaped = escaped.Replace("&", "and");
 
             escaped = WebUtility.HtmlEncode(escaped);
 
