@@ -209,7 +209,7 @@ namespace AlexaFunctions
             }
             else
             {
-                ssml = $"on <say-as interpret-as=\"date\" format=\"md\">{date.Date.ToString("MMdd")}</say-as>";
+                ssml = $"on <say-as interpret-as=\"date\" format=\"md\">{date.Date.ToString("M/d")}</say-as>";
             }
 
             return ssml;
